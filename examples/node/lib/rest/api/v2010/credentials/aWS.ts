@@ -13,6 +13,7 @@
 import { inspect, InspectOptions } from 'util';
 import Page from '../../../../base/Page';
 import V2010 from '../../V2010';
+import { FlexFlowListInstance } from './AWS/FlexFlows';
 
 
 /**
@@ -71,6 +72,7 @@ export interface AWListInstance {
     (sid: string): AWContext;
     get(sid: string): AWContext;
 
+    flex_flows: FlexFlowListInstance;
 
     /**
      * Create a AWInstance
@@ -116,6 +118,7 @@ class AWListInstanceImpl implements AWListInstance {
     _solution?: any;
     _uri?: string;
 
+    _flex_flows?: FlexFlowListInstance;
 }
 
 export function AWListInstance(version: V2010): AWListInstance {
@@ -128,6 +131,15 @@ export function AWListInstance(version: V2010): AWListInstance {
     instance._version = version;
     instance._solution = {  };
     instance._uri = `/v1/Credentials/AWS`;
+
+    Object.defineProperty(instance, 'flex_flows', {
+        get: function flex_flows() {
+            if (!this._flex_flows) {
+                this._flex_flows = FlexFlowListInstance(this._version);
+            }
+            return this._flex_flows;
+        }
+    });
 
     instance.create = function create(params: any, callback?: any): Promise<AWInstance> {
         if (params === null || params === undefined) {
